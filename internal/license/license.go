@@ -151,20 +151,20 @@ func GetHwaddrAndNetips() ([]string, []string, error) {
 	return hwAddrs, netips, nil
 }
 func _ae(_feg string, _aef []byte) (string, error) {
-	_dga, _ := pem.Decode([]byte(_feg))
-	if _dga == nil {
-		return "", fmt.Errorf("\u0050\u0072\u0069\u0076\u004b\u0065\u0079\u0020\u0066a\u0069\u006c\u0065\u0064")
+	pemBlock, _ := pem.Decode([]byte(_feg))
+	if pemBlock == nil {
+		return "", fmt.Errorf("PrivKey failed")
 	}
-	_agcg, _fea := x509.ParsePKCS1PrivateKey(_dga.Bytes)
-	if _fea != nil {
-		return "", _fea
+	priKey, err := x509.ParsePKCS1PrivateKey(pemBlock.Bytes)
+	if err != nil {
+		return "", err
 	}
-	_be := sha512.New()
-	_be.Write(_aef)
-	_bb := _be.Sum(nil)
-	_faf, _fea := rsa.SignPKCS1v15(rand.Reader, _agcg, crypto.SHA512, _bb)
-	if _fea != nil {
-		return "", _fea
+	h := sha512.New()
+	h.Write(_aef)
+	_bb := h.Sum(nil)
+	_faf, err := rsa.SignPKCS1v15(rand.Reader, priKey, crypto.SHA512, _bb)
+	if err != nil {
+		return "", err
 	}
 	_efb := base64.StdEncoding.EncodeToString(_aef)
 	_efb += "\u000a\u002b\u000a"
